@@ -1,0 +1,42 @@
+data/
+LCDataDictionary.xlsx
+lending_club.pdf
+schema.txt
+
+# Python cache / environments
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+
+# Frontend build / dependencies
+dashboard/frontend/node_modules/
+dashboard/frontend/dist/
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+
+# Local package/archive outputs
+*.zip
+
+# Keep container/model runtime essentials tracked
+!artifacts/
+!artifacts/*.joblib
+!artifacts/*.json
+!charts/
+!charts/*.png
+!docker-compose.yml
+!Dockerfile.backend
+!Dockerfile.frontend
+!Dockerfile.frontend.prod
+!dashboard/frontend/nginx.conf

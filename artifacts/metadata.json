@@ -1,0 +1,7 @@
+{
+  "best_model_name": "LightGBM",
+  "roc_auc": 0.7099757399021918,
+  "train_rows": 160000,
+  "test_rows": 40000,
+  "n_features": 22
+}

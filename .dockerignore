@@ -1,0 +1,13 @@
+.git
+.gitignore
+
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+
+dashboard/frontend/node_modules
+dashboard/frontend/dist
+
+notebooks
+The Safe Lending.zip

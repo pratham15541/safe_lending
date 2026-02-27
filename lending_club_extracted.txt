@@ -1,0 +1,38 @@
+For several years, the lending platform operated with steady confidence. 
+Borrowers applied for loans by sharing details about their income, employment, credit 
+history, and existing debts. The platform evaluated these details, assigned each loan a grade 
+to reflect risk, and set an interest rate that was meant to balance borrower affordability with 
+investor return. Investors funded the loans, repayments flowed back over time, and the 
+system appeared to function as intended. 
+Loan volumes increased between 2007 and 2015. Default rates stayed within expected 
+ranges. Performance summaries suggested that the grading and pricing framework was 
+working. 
+On the surface, the marketplace seemed stable. 
+Over time, however, small irregularities began to appear. 
+Loans with the same grade did not always perform similarly across different states. 
+Borrowers with comparable credit scores showed different repayment patterns depending 
+on their debt levels or employment history. Some higher-income applicants defaulted 
+unexpectedly, while some with moderate profiles repaid consistently. Joint applications did 
+not behave in exactly the same way as individual ones, even when their combined financial 
+indicators looked strong. 
+None of these differences were large enough to trigger alarm on their own. There was no 
+sudden rise in defaults, no dramatic breakdown in investor returns. But taken together, the 
+variations raised a quiet concern. 
+Were the signals used to judge risk still capturing borrower behavior accurately? Or had the 
+meaning of some of these indicators shifted over time? If two borrowers look similar on 
+paper, should they be expected to behave similarly in practice? If a loan is assigned a 
+particular grade, does that grade still reflect the level of risk it once did? 
+The platform’s leadership is not asking whether default exists. They know that lending 
+always carries risk. 
+They want to understand something more basic. 
+Does the relationship between borrower characteristics, assigned grades, interest rates, and 
+final loan outcomes remain consistent? Or are there patterns beneath the surface that 
+suggest the system’s balance may not be as steady as it appears? 
+You have been provided with historical loan records from the platform’s growth years, 
+including borrower details, credit information, loan terms, grades, pricing, and repayment 
+status. 
+Within this data lies the answer to whether the marketplace’s stability reflects strength - or 
+whether it conceals gradual drift. 
+The system continues to operate. 
+The question is whether it is operating as intended. 
+ 

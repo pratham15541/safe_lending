@@ -1,0 +1,35 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: safe-lending-backend
+    ports:
+      - "8000:8000"
+
+  frontend:
+    profiles: ["dev"]
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: safe-lending-frontend-dev
+    environment:
+      - VITE_API_BASE_URL=
+      - VITE_PROXY_TARGET=http://backend:8000
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+
+  frontend-prod:
+    profiles: ["prod"]
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend.prod
+      args:
+        VITE_API_BASE_URL: ""
+    container_name: safe-lending-frontend-prod
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
