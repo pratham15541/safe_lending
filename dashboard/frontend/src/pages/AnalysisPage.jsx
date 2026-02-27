@@ -3,6 +3,12 @@ import { motion } from "framer-motion";
 import api from "../api/client";
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+const getDisplayQuestionTitle = (card) => {
+  const cleaned = card.title
+    .replace(new RegExp(`^${card.id}[\\.:\\-\\s]*`, "i"), "")
+    .trim();
+  return `${card.id}. ${cleaned}`;
+};
 
 const domains = [
   { key: "ALL", label: "All" },
@@ -12,6 +18,8 @@ const domains = [
   { key: "D", label: "D. Application Type" },
   { key: "E", label: "E. Credit Behavior" },
   { key: "F", label: "F. Loan Performance" },
+  { key: "MODEL", label: "Model Diagnostics" },
+  { key: "DATA", label: "Data Quality" },
   { key: "FINAL", label: "Final Conclusions" },
 ];
 
@@ -284,6 +292,96 @@ const questionCards = [
       "Current condition supports controlled deployment with active drift governance.",
     charts: ["05_grade_drift_over_time.png", "20_grade_calibration.png"],
   },
+  {
+    id: "M1",
+    domain: "MODEL",
+    title: "M1. Overall model comparison across algorithms",
+    answer:
+      "LightGBM and XGBoost lead overall discrimination, with LightGBM selected for production.",
+    shows:
+      "Comparative performance of all trained models on shared evaluation metrics.",
+    determines:
+      "Model choice is evidence-based and not tied to a single algorithm assumption.",
+    charts: ["15_model_comparison.png"],
+  },
+  {
+    id: "M2",
+    domain: "MODEL",
+    title: "M2. ROC discrimination profile",
+    answer:
+      "Top ensemble models maintain stronger true-positive/false-positive tradeoff than baselines.",
+    shows: "ROC curves for multi-model discrimination comparison.",
+    determines: "Selected model is robust for ranking risk likelihood.",
+    charts: ["16_roc_curves.png"],
+  },
+  {
+    id: "M3",
+    domain: "MODEL",
+    title: "M3. Error profile by confusion matrices",
+    answer:
+      "Different models trade off false positives and false negatives in distinct ways.",
+    shows:
+      "Confusion matrices for primary models under common thresholding assumptions.",
+    determines:
+      "Threshold policy should align with business objective, not accuracy alone.",
+    charts: ["17_confusion_matrices.png"],
+  },
+  {
+    id: "M4",
+    domain: "MODEL",
+    title: "M4. Threshold policy calibration",
+    answer:
+      "Lower thresholds improve recall; balanced threshold gives better F1 tradeoff.",
+    shows: "Precision/recall/F1 movement across threshold range.",
+    determines:
+      "Operational threshold should be chosen by risk-capture vs false-alert preference.",
+    charts: ["19_threshold_tuning.png"],
+  },
+  {
+    id: "M5",
+    domain: "MODEL",
+    title: "M5. Probability calibration quality",
+    answer:
+      "Calibrated probabilities better match observed default frequencies.",
+    shows: "Calibration curve and probability alignment diagnostics.",
+    determines:
+      "Probability outputs are reliable enough for governance overlays.",
+    charts: ["22_calibration_curve.png"],
+  },
+  {
+    id: "E1",
+    domain: "E",
+    title: "E1. Loan amount, term, and verification interactions",
+    answer:
+      "Loan amount and verification behavior provide additional context for outcome dispersion.",
+    shows:
+      "Default behavior against amount, term, and verification categories.",
+    determines:
+      "These policy inputs should remain available in feature governance.",
+    charts: ["12_loan_amount_verification.png"],
+  },
+  {
+    id: "E2",
+    domain: "E",
+    title: "E2. Correlation structure across numeric features",
+    answer:
+      "Feature relationships are non-trivial with both shared and independent signal blocks.",
+    shows: "Pairwise correlation heatmap among core numeric predictors.",
+    determines:
+      "Modeling requires multi-feature learning rather than single-variable rules.",
+    charts: ["13_correlation_heatmap.png"],
+  },
+  {
+    id: "DQ1",
+    domain: "DATA",
+    title: "DQ1. Missing-value diagnostics",
+    answer:
+      "Initial raw inputs contain structured null patterns requiring controlled imputation/dropping.",
+    shows: "Missingness distribution used to guide cleaning strategy.",
+    determines:
+      "Data quality preprocessing materially affects downstream model reliability.",
+    charts: ["missing_values.png"],
+  },
 ];
 
 function ChartPreview({ chartUrl, title, onOpen }) {
@@ -490,7 +588,6 @@ export default function AnalysisPage() {
   const [chartMap, setChartMap] = useState({});
   const [activeDomain, setActiveDomain] = useState("ALL");
   const [search, setSearch] = useState("");
-  const [selectedCharts, setSelectedCharts] = useState({});
   const [lightbox, setLightbox] = useState({ open: false, url: "", title: "" });
 
   useEffect(() => {
@@ -533,6 +630,29 @@ export default function AnalysisPage() {
     const final = questionCards.filter((x) => x.id.startsWith("F")).length;
     return { core, final, total: core + final };
   }, []);
+
+  const chartGroups = useMemo(() => {
+    const grouped = new Map();
+    filteredCards.forEach((card) => {
+      card.charts.forEach((chart) => {
+        if (!grouped.has(chart)) {
+          grouped.set(chart, []);
+        }
+        grouped.get(chart).push(card);
+      });
+    });
+
+    return Array.from(grouped.entries())
+      .map(([chart, cards]) => ({ chart, cards }))
+      .sort((a, b) => a.chart.localeCompare(b.chart));
+  }, [filteredCards]);
+
+  const unmappedCharts = useMemo(() => {
+    const mapped = new Set(chartGroups.map((item) => item.chart));
+    return Object.keys(chartMap)
+      .filter((chart) => !mapped.has(chart))
+      .sort((a, b) => a.localeCompare(b));
+  }, [chartGroups, chartMap]);
 
   if (loading) {
     return (
@@ -648,45 +768,26 @@ export default function AnalysisPage() {
           </div>
         </div>
         <p className="text-xs text-slate-400">
-          Showing {filteredCards.length} question cards. Charts are interactive
-          via hover details, chart selection, and click-to-expand.
+          Showing {filteredCards.length} Q/A cards mapped into{" "}
+          {chartGroups.length} unique charts. Reused charts are shown once with
+          multiple linked Q/A blocks.
         </p>
       </section>
 
       <section className="space-y-4">
-        {filteredCards.map((card) => {
-          const chartIndex = selectedCharts[card.id] || 0;
-          const activeChart = card.charts[chartIndex];
-          const chartUrl = chartMap[activeChart];
+        {chartGroups.map((group) => {
+          const chartUrl = chartMap[group.chart];
 
           return (
             <article
-              key={card.id}
+              key={group.chart}
               className="rounded-xl border border-slate-800 bg-slate-900/70 p-4 space-y-4"
             >
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
-                <h3 className="text-base font-semibold">{card.title}</h3>
-                {card.charts.length > 1 && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="text-slate-400">Chart</span>
-                    <select
-                      value={chartIndex}
-                      onChange={(event) =>
-                        setSelectedCharts((prev) => ({
-                          ...prev,
-                          [card.id]: Number(event.target.value),
-                        }))
-                      }
-                      className="rounded-md bg-slate-800 px-2 py-1 border border-slate-700"
-                    >
-                      {card.charts.map((filename, idx) => (
-                        <option key={filename} value={idx}>
-                          {filename}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
+                <h3 className="text-base font-semibold">{group.chart}</h3>
+                <p className="text-xs text-slate-400">
+                  Linked Q/A: {group.cards.length}
+                </p>
               </div>
 
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
@@ -694,43 +795,75 @@ export default function AnalysisPage() {
                   {chartUrl ? (
                     <ChartPreview
                       chartUrl={chartUrl}
-                      title={`${card.id} — ${activeChart}`}
+                      title={group.chart}
                       onOpen={() =>
                         setLightbox({
                           open: true,
                           url: chartUrl,
-                          title: `${card.title} | ${activeChart}`,
+                          title: group.chart,
                         })
                       }
                     />
                   ) : (
                     <div className="rounded-lg border border-amber-600/40 bg-amber-900/20 p-4 text-sm text-amber-300">
-                      Chart file not found in API catalog: {activeChart}
+                      Chart file not found in API catalog: {group.chart}
                     </div>
                   )}
                 </div>
 
                 <div className="space-y-3 text-sm">
-                  <div className="rounded-lg border border-slate-800 bg-slate-950/70 p-3">
-                    <p className="text-slate-400 mb-1">Answer</p>
-                    <p className="text-slate-100">{card.answer}</p>
-                  </div>
-                  <div className="rounded-lg border border-slate-800 bg-slate-950/70 p-3">
-                    <p className="text-slate-400 mb-1">What it shows</p>
-                    <p className="text-slate-100">{card.shows}</p>
-                  </div>
-                  <div className="rounded-lg border border-slate-800 bg-slate-950/70 p-3">
-                    <p className="text-slate-400 mb-1">
-                      What it determines now
-                    </p>
-                    <p className="text-cyan-200">{card.determines}</p>
-                  </div>
+                  {group.cards.map((card) => (
+                    <div
+                      key={`${group.chart}-${card.id}`}
+                      className="rounded-lg border border-slate-800 bg-slate-950/70 p-3"
+                    >
+                      <p className="text-slate-300 font-medium mb-1">
+                        {getDisplayQuestionTitle(card)}
+                      </p>
+                      <p className="text-slate-400 mb-1">Answer</p>
+                      <p className="text-slate-100 mb-2">{card.answer}</p>
+                      <p className="text-slate-400 mb-1">What it shows</p>
+                      <p className="text-slate-100 mb-2">{card.shows}</p>
+                      <p className="text-slate-400 mb-1">
+                        What it determines now
+                      </p>
+                      <p className="text-cyan-200">{card.determines}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </article>
           );
         })}
       </section>
+
+      {activeDomain === "ALL" && unmappedCharts.length > 0 && (
+        <section className="rounded-xl border border-slate-800 bg-slate-900/70 p-4 space-y-3">
+          <h3 className="text-base font-semibold">Additional Chart Coverage</h3>
+          <p className="text-xs text-slate-400">
+            These charts are present in the repository and included for
+            completeness.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {unmappedCharts.map((chart) => (
+              <button
+                key={chart}
+                type="button"
+                onClick={() =>
+                  setLightbox({
+                    open: true,
+                    url: chartMap[chart],
+                    title: chart,
+                  })
+                }
+                className="rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-left hover:border-cyan-500/60"
+              >
+                <p className="text-sm text-slate-200">{chart}</p>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       <Lightbox
         isOpen={lightbox.open}

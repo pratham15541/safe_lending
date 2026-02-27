@@ -473,3 +473,40 @@ The ML model (LightGBM, AUC=0.710) provides a data-driven alternative to pure gr
    - Within-grade interest-quartile default spread
    - State × Grade dispersion trend
 6. **Close the loop:** Feed quarterly monitoring outputs into underwriting policy updates and compare pre/post impact before full rollout.
+
+---
+
+## Complete Chart Index (Deduplicated, All Repository Charts)
+
+The mapping below lists each chart once and links all related Q/A to avoid duplicate chart reporting.
+
+| Chart                                   | Linked Questions / Use                                               |
+| --------------------------------------- | -------------------------------------------------------------------- |
+| `01_loan_status_distribution.png`       | Q15 (loan status distribution baseline)                              |
+| `02_default_rate_by_grade.png`          | Q1, F1                                                               |
+| `03_default_rate_by_subgrade.png`       | Q1                                                                   |
+| `04_interest_rate_by_grade.png`         | Q3                                                                   |
+| `05_grade_drift_over_time.png`          | Q2, F2, F5                                                           |
+| `06_borrower_profile_default.png`       | Q5, Q6, Q7                                                           |
+| `07_dti_vs_default.png`                 | Q4                                                                   |
+| `08_default_rate_by_state_map.png`      | Q8, Q9, F4                                                           |
+| `09_top_bottom_states.png`              | Q8                                                                   |
+| `10_joint_vs_individual.png`            | Q10, Q11                                                             |
+| `11_credit_utilization_patterns.png`    | Q12, Q13, Q14                                                        |
+| `12_loan_amount_verification.png`       | Supplemental EDA diagnostic (loan amount/term/verification behavior) |
+| `13_correlation_heatmap.png`            | Supplemental EDA diagnostic (feature relationship structure)         |
+| `14_recovery_hardship.png`              | Q16, Q17                                                             |
+| `15_model_comparison.png`               | Modeling summary (algorithm selection evidence)                      |
+| `16_roc_curves.png`                     | Modeling summary (discrimination profile)                            |
+| `17_confusion_matrices.png`             | Modeling summary (error tradeoff profile)                            |
+| `18_feature_importance.png`             | Q12 support + modeling interpretability                              |
+| `19_threshold_tuning.png`               | Modeling threshold policy decision                                   |
+| `20_grade_calibration.png`              | Q2, F1, F5                                                           |
+| `21_mispricing_grade_rate_quartile.png` | Q3, F3                                                               |
+| `22_calibration_curve.png`              | Modeling probability calibration quality                             |
+| `23_state_grade_default_heatmap.png`    | Q8, F4                                                               |
+| `24_joint_financials_comparison.png`    | Q11, F4                                                              |
+| `25_hardship_settlement_vs_default.png` | Q17                                                                  |
+| `missing_values.png`                    | Data quality preprocessing diagnostic                                |
+
+This index is mirrored in the frontend analysis page where charts are grouped uniquely and each chart card contains all linked Q/A entries.
